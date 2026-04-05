@@ -51,9 +51,9 @@ plot_combined <- ggplot(mapping = aes(x = time, y = Gpp)) +
             color = "darkgreen") +
   geom_smooth(data = tundra, method = "lm", color = "red", linewidth = 0.5) +
   geom_line(data = arctic,
-            color = "blue") +
+            color = "yellow") +
   geom_smooth(data = arctic, method = "lm", color = "red", linewidth = 0.5) +
-  labs(title = "GPP for boreal forest (black), tundra (green) and arctic (blue)")
+  labs(title = "GPP for boreal forest (black), tundra (green) and arctic (yellow)")
 
 plot_combined
 
@@ -85,3 +85,6 @@ GPP_trends <- data.frame(region = c("boreal forest", "tundra", "arctic"), GPP_re
 #plot the regression coefficients
 slope_plot <- ggplot(data = GPP_trends, aes(x = region, y = GPP_regr_coef)) + geom_col(fill = "darkgreen")
 slope_plot
+
+
+
