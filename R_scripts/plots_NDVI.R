@@ -4,13 +4,13 @@ library(ggplot2)
 
 
 #Read data from netcdf file
-borealforest <- metR::ReadNetCDF("arctic_data/spatial_means/NDVIxNIR/NDVIxNIR.720.360_summer.cat_borealforest.nc",
+borealforest <- metR::ReadNetCDF("data/spatial_means/NDVIxNIR/NDVIxNIR.720.360_summer.cat_borealforest.nc",
                                  out = "data.frame")
 
-tundra <- metR::ReadNetCDF("arctic_data/spatial_means/NDVIxNIR/NDVIxNIR.720.360_summer.cat_tundra.nc", 
+tundra <- metR::ReadNetCDF("data/spatial_means/NDVIxNIR/NDVIxNIR.720.360_summer.cat_tundra.nc", 
                            out = "data.frame")
 
-arctic <- metR::ReadNetCDF("arctic_data/spatial_means/NDVIxNIR/NDVIxNIR.720.360_summer.cat_arctic.nc", 
+arctic <- metR::ReadNetCDF("data/spatial_means/NDVIxNIR/NDVIxNIR.720.360_summer.cat_arctic.nc", 
                            out = "data.frame")
 
 

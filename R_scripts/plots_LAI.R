@@ -4,13 +4,13 @@ library(ggplot2)
 
 
 #Read LAI data from netcdf file
-borealforest <- metR::ReadNetCDF("arctic_data/spatial_means/LAI_AVHRR/LAI_AVHRR_global_borealforest.nc",
+borealforest <- metR::ReadNetCDF("data/spatial_means/LAI_AVHRR/LAI_AVHRR_global_borealforest.nc",
                                  out = "data.frame")
 
-tundra <- metR::ReadNetCDF("arctic_data/spatial_means/LAI_AVHRR/LAI_AVHRR_global_tundra.nc", 
+tundra <- metR::ReadNetCDF("data/spatial_means/LAI_AVHRR/LAI_AVHRR_global_tundra.nc", 
                            out = "data.frame")
 
-arctic <- metR::ReadNetCDF("arctic_data/spatial_means/LAI_AVHRR/LAI_AVHRR_arctic.nc", 
+arctic <- metR::ReadNetCDF("data/spatial_means/LAI_AVHRR/LAI_AVHRR_arctic.nc", 
                            out = "data.frame")
 
 

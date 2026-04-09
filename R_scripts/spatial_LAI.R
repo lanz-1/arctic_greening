@@ -7,7 +7,7 @@ library(tidyterra)
 #read data
 #from 31.12.1981 to 31.12.2018
 
-LAI_spatial <- metR::ReadNetCDF("arctic_data/spatial/LAI_AVHRR_global.nc",
+LAI_spatial <- metR::ReadNetCDF("data/spatial/LAI_AVHRR_global.nc",
                     out = "data.frame")
 
 #spatial data in northern latitudes for 2011

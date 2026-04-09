@@ -4,13 +4,13 @@ library(ggplot2)
 
 #in this file I plot GPP trends and calculate the linear regression coefficient 
 #Read data from netcdf file
-borealforest <- metR::ReadNetCDF("C:/Users/valen/Documents/Arctic/arctic_data/spatial_means/GPP_MODIS_OD17A3HGF.061/MOD17A3HGF.061_gpp_borealforest.nc",
+borealforest <- metR::ReadNetCDF("data/spatial_means/GPP_MODIS_OD17A3HGF.061/MOD17A3HGF.061_gpp_borealforest.nc",
                                  out = "data.frame")
 
-tundra <- metR::ReadNetCDF("C:/Users/valen/Documents/Arctic/arctic_data/spatial_means/GPP_MODIS_OD17A3HGF.061/MOD17A3HGF.061_gpp_tundra.nc", 
+tundra <- metR::ReadNetCDF("data/spatial_means/GPP_MODIS_OD17A3HGF.061/MOD17A3HGF.061_gpp_tundra.nc", 
                            out = "data.frame")
 
-arctic <- metR::ReadNetCDF("C:/Users/valen/Documents/Arctic/arctic_data/spatial_means/GPP_MODIS_OD17A3HGF.061/MOD17A3HGF.061_gpp_arctic.nc", 
+arctic <- metR::ReadNetCDF("data/spatial_means/GPP_MODIS_OD17A3HGF.061/MOD17A3HGF.061_gpp_arctic.nc", 
                            out = "data.frame")
 
 
