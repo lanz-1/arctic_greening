@@ -10,6 +10,8 @@ library(tidyterra)
 LAI_spatial <- metR::ReadNetCDF("data/spatial/LAI_AVHRR_global.nc",
                     out = "data.frame")
 
+#experimental----
+
 #spatial data in northern latitudes for 2011
 LAI_2011 <- LAI_spatial |> dplyr::filter((as.Date(time) == as.Date("2011-12-31")) & (latitude >= 55))
 
@@ -46,7 +48,7 @@ m <- r_LAI_1985 > 1.5
 ggplot() + geom_spatraster(data = m) + scale_fill_viridis_d(na.value = NA) +
   labs(title = "LAI above 1.5 (true/false), Latitudes >= 55, 1985-12-31")
 
-
+#----
 
 
 #this is AI-generated. Creates a multi-layered spatraster object. One layer per year.
@@ -69,7 +71,7 @@ raster_list <- lapply(years, function(yr) {
 r_LAI <- terra::rast(raster_list)
 names(r_LAI) <- years
 
-r_LAI
+
 
 #end of AI section
 
@@ -102,7 +104,8 @@ names(r_LAI_trend) <- "LAI_trend"
 ggplot() +
   geom_spatraster(data = r_LAI_trend) +
   scale_fill_gradient2(
-    low = "red", mid = "white", high = "blue",
+    low = "red", mid = "white", high = "darkgreen",
+    limits = c(-0.02, 0.02), #set limits to -0.02 and 0.02 in order to have stronger colors.
     midpoint = 0,
     na.value = NA,
     name = "LAI trend\n(per year)"
@@ -110,3 +113,44 @@ ggplot() +
   labs(title = "Linear trend in LAI (1981–2018)") +
   theme_minimal()
 
+
+#is there a latitude effect? Compare spatial mean of region between 55 and 65 degreees
+#to the spatial mean between 65 and 75 degrees.
+
+#select latitudes higher than 65 degrees 
+r_LAI_trend_north <- r_LAI_trend |> filter(y >= 65)
+
+#calculate mean across pixels
+terra::global(r_LAI_trend_north, mean, na.rm = TRUE)
+
+
+#select latitudes between 55 and 65 degrees 
+r_LAI_trend_55 <- r_LAI_trend |> filter(y < 65)
+
+#calculate mean across pixels
+terra::global(r_LAI_trend_55, mean, na.rm = TRUE)
+
+
+
+#write a for loop that calculates the spatial mean for every latitude degree
+
+df <-  data.frame(lat = numeric(), mean = numeric())
+
+for(i in seq(55,80)) {
+  
+  lat_slope <- r_LAI_trend |> filter((y >= i) & (y < (i+1)))  #select latitude degree-wise (e.g. select pixels between 55 degrees and 56 degrees)
+  lat_slope_mean <- terra::global(lat_slope, mean, na.rm = TRUE)  #calculate mean across pixels of this latitude
+  
+  #add new row to data frame
+  df <- rbind(df, data.frame(
+    lat = i,
+    mean = lat_slope_mean[1, 1]))
+  
+}
+df
+
+
+#plot spatial mean by latitude. Look for latitude effect
+ggplot(data = df, aes(x = lat, y = mean)) + geom_col()
+
+#kann das stimmen? Vergleich mit Karte. Werte im Barplot sind sehr klein.
