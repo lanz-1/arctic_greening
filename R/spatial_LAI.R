@@ -122,31 +122,26 @@ ggplot() +
   theme_minimal()
 
 
-#is there a latitude effect? Compare spatial mean of region between 55 and 65 degreees
-#to the spatial mean between 65 and 75 degrees.
+#is there a latitude effect?
 
-#select latitudes higher than 65 degrees 
-r_LAI_trend_north <- r_LAI_trend |> filter(y >= 65)
+#write a for loop that calculates the spatial mean for every latitude degree. 
+#The problem is that if ocean surface is included in the mean, latitudes with
+#more ocean get a smaller mean. But we want to examine land surface only for LAI.
 
-#calculate mean across pixels
-terra::global(r_LAI_trend_north, mean, na.rm = TRUE)
+#create a land surface mask
 
-
-#select latitudes between 55 and 65 degrees 
-r_LAI_trend_55 <- r_LAI_trend |> filter(y < 65)
-
-#calculate mean across pixels
-terra::global(r_LAI_trend_55, mean, na.rm = TRUE)
+#load land surface shapefile and create land mask
+land <- terra::vect("data/spatial/land_surface/ne_10m_land.shp")
+LAI_trend_land <- terra::mask(r_LAI_trend, land)
 
 
-
-#write a for loop that calculates the spatial mean for every latitude degree
-
+#create empty data frame to be filled by the loop
 df <-  data.frame(lat = numeric(), mean = numeric())
 
+#start looping over every latitude, calculating mean
 for(i in seq(55,80)) {
   
-  lat_slope <- r_LAI_trend |> filter((y >= i) & (y < (i+1)))  #select latitude degree-wise (e.g. select pixels between 55 degrees and 56 degrees)
+  lat_slope <- LAI_trend_land |> filter((y >= i) & (y < (i+1)))  #select latitude degree-wise (e.g. select pixels between 55 degrees and 56 degrees)
   lat_slope_mean <- terra::global(lat_slope, mean, na.rm = TRUE)  #calculate mean across pixels of this latitude
   
   #add new row to data frame
@@ -159,4 +154,4 @@ df
 
 
 #plot spatial mean by latitude. Look for latitude effect
-ggplot(data = df, aes(x = lat, y = mean)) + geom_col()
+ggplot(data = df, aes(x = lat, y = mean)) + geom_point()

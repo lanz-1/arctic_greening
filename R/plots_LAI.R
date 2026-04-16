@@ -24,3 +24,5 @@ plot_arctic_LAI
 arctic_mod <- lm(LAI ~ time, data = arctic_mean)
 slope_arctic <- coef(arctic_mod)[2]
 
+#view significance linear regression model
+summary(arctic_mod)
