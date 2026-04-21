@@ -17,6 +17,22 @@ compare <- function(dgvm) {
   #filter data from 1982 to 2022
   LAI <- LAI |> dplyr::filter(time >= as.Date("1981-12-31"), time <= as.Date("2021-12-31"))
   
+  
+  
+  
+  #some models have a 'lat' column, others a 'latitude' column. This causes errors. 
+  
+  #rename potential 'lat' column to 'latitude'
+  if ("lat" %in% colnames(LAI)){
+    LAI <- LAI |> dplyr::rename(latitude = lat)
+  }
+  
+  #same for 'lon' and 'longitude'
+  if ("lon" %in% colnames(LAI)){
+    LAI <- LAI |> dplyr::rename(longitude = lon)
+  }
+  
+  
   #filter latitudes above 60 degrees
   LAI <- LAI |> dplyr::filter("latitude" >= 60)
   
@@ -54,6 +70,9 @@ compare <- function(dgvm) {
   p_mean_LAI_f
   
   
+  #fit linear regression model for Arctic mean LAI and calculate slope
+  linmod <- lm(mean ~ year, data = arc_mean_f)
+  slope_m <- coef(fit)[2]
   
   #calculate deviation from observed mean LAI
   
@@ -63,7 +82,8 @@ compare <- function(dgvm) {
   #root mean square error
   RMSE <- sqrt(mean((arc_mean_f$mean - arc_mean$mean)^2))
   
-  return(tibble(Model = dgvm,
+  return(tibble(model = dgvm,
+                slope = slope_m,
                 MAE = MAE,
                 RMSE = RMSE))
   
