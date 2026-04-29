@@ -14,12 +14,7 @@ compare <- function(dgvm) {
   LAI <- metR::ReadNetCDF(paste0("data/trendyv14_lai_july_mean/", dgvm, "_S3_lai.nc")) |>
     as_tibble()
   
-  #filter data from 1982 to 2022
-  LAI <- LAI |> dplyr::filter(time >= as.Date("1981-12-31"), time <= as.Date("2021-12-31"))
-  
-  
-  
-  
+
   #some models have a 'lat' column, others a 'latitude' column. This causes errors. 
   
   #rename potential 'lat' column to 'latitude'
@@ -33,33 +28,62 @@ compare <- function(dgvm) {
   }
   
   
-  #filter latitudes above 60 degrees
-  LAI <- LAI |> dplyr::filter("latitude" >= 60)
+  #now filter latitudes above 60 degrees
+  LAI <- LAI |> dplyr::filter(latitude >= 60)
+  
+ 
+  # Filter data from 1982 to 2021
+  LAI <- LAI |> dplyr::filter(
+    time >= as.POSIXct("1982-01-01", tz = "UTC"),
+    time <= as.POSIXct("2021-12-31", tz = "UTC")
+  )
   
   
-  
-  #build multilayer spatraster with one layer per year
+  # Build multilayer SpatRaster with one layer per year
   years_f <- sort(unique(LAI$time))
-  
   raster_list_f <- lapply(years_f, function(yr) {
-    LAI |>
+    r_df <- LAI |>
       dplyr::filter(time == yr) |>
       dplyr::select(longitude, latitude, lai) |>
-      terra::rast(type = "xyz", crs = "EPSG:4326")
+      dplyr::mutate(
+        longitude = round(longitude, 3),
+        latitude  = round(latitude, 3)
+      )
+    
+    # Try direct rasterization first
+    r_out <- tryCatch({
+      terra::rast(r_df, type = "xyz", crs = "EPSG:4326")
+    }, error = function(e) {
+      # Capture r_df explicitly into error handler scope
+      r_df_local <- r_df
+      pts <- terra::vect(r_df_local, geom = c("longitude", "latitude"), crs = "EPSG:4326")
+      terra::rasterize(pts, target_grid, field = "lai", fun = mean)
+    })
+    
+    # Resample onto common grid for comparability across models
+    terra::resample(r_out, target_grid, method = "bilinear")
   })
+  
+  
+  
+  
   
   raster_LAI_f <- terra::rast(raster_list_f)
   names(raster_LAI_f) <- years_f
   
-  
-  #remove ocean surface cells
-  land <- terra::vect("data/spatial/land_surface/ne_10m_land.shp")
+  # Remove ocean surface cells
   raster_LAI_f <- raster_LAI_f |> terra::mask(land)
   
+  # Calculate Arctic mean LAI over time
+  arc_mean_f <- terra::global(raster_LAI_f, mean, na.rm = TRUE) |> as.data.frame()
+  arc_mean_f <- arc_mean_f |>
+    dplyr::mutate(
+      year  = as.integer(format(as.POSIXct(years_f), "%Y")),
+      model = dgvm
+    )
   
-  #calculate Arctic mean LAI over time
-  arc_mean_f <- terra::global(raster_LAI_f, mean, na.rm = TRUE)
-  arc_mean_f <- arc_mean_f |> dplyr::mutate(year = 1982:2021) #add year column for plot
+  
+  
   
   #plot mean modelled LAI from 1982-2022 (blue) and observations
   p_mean_LAI_f <- ggplot() +
@@ -72,7 +96,7 @@ compare <- function(dgvm) {
   
   #fit linear regression model for Arctic mean LAI and calculate slope
   linmod <- lm(mean ~ year, data = arc_mean_f)
-  slope_m <- coef(fit)[2]
+  slope_m <- coef(linmod)[2]
   
   #calculate deviation from observed mean LAI
   
@@ -86,7 +110,6 @@ compare <- function(dgvm) {
                 slope = slope_m,
                 MAE = MAE,
                 RMSE = RMSE))
-  
 }
 
 

@@ -176,3 +176,7 @@ plot_arc_LAI <- ggplot(data = arc_mean,
   geom_smooth(method = "lm") +        #add linear regression line
   labs(title = "60+ degrees mean LAI 1982-2021") 
 plot_arc_LAI
+
+
+saveRDS(arc_mean, "data/variables/arcmean_observed.rds")
+

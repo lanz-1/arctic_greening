@@ -23,5 +23,8 @@ for (m in models) {
 
 df_metrics
 
+boxplot_slope <- ggplot(data = df_metrics) + geom_boxplot(aes(y = slope), width = 0.5)
+
+
 ggplot(data = df_metrics, aes(x = model, y = MAE)) + geom_col() + coord_flip()
 
