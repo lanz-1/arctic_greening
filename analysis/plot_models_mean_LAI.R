@@ -28,7 +28,7 @@ target_grid <- terra::rast(
 
 
 #load lai observations
-arc_mean_obs <- readRDS("data/variables/arcmean_observed.rds")
+arc_mean_obs <- readRDS("data/variables/obs_arcmean_weighted.rds")
 arc_mean_obs <-  arc_mean_obs |> dplyr::mutate(model = "OBSERVED")
 
 
@@ -123,12 +123,9 @@ for (dgvm in models) {
   # Get cell area weights
   cellsize <- terra::cellSize(raster_LAI_f, unit = "m")
   
-  # Area-weighted mean for each layer
+  # Calculate Arctic mean for every year. Weighted by cell size.
   arc_mean_f <- terra::global(raster_LAI_f, "mean", weights = cellsize, na.rm = TRUE) |>
     as.data.frame()
-  
-  # Calculate Arctic mean LAI over time
-  #arc_mean_f <- terra::global(raster_LAI_f, mean, na.rm = TRUE) |> as.data.frame()
   arc_mean_f <- arc_mean_f |>
     dplyr::mutate(
       year  = as.integer(format(as.POSIXct(years_f), "%Y")),
@@ -162,7 +159,7 @@ results_df <- readRDS("data/variables/arcmean_lai_timeseries.rds")
 #line plot to compare different models
 ggplot(results_df, aes(x = year, y = weighted_mean, color = model)) +
   geom_line(linewidth = 0.8) +
-  geom_line(data = arc_mean_obs, aes(x = year, y = mean), color = "black", linewidth = 1.0) +
+  geom_line(data = arc_mean_obs, aes(x = year, y = weighted_mean), color = "black", linewidth = 1.0) +
   labs(
     x = "Year",
     y = "Arctic mean LAI",

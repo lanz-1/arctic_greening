@@ -167,16 +167,29 @@ LAI_trendmap <- ggplot() +
     panel.grid.major = element_line(colour = "gray")) +
   theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 0.8))
 
-LAI_trendmap
-#calculate Arctic mean LAI over time
-#remove oceans first
 
+
+#calculate Arctic mean LAI over time
+
+#remove oceans first
 r_LAI_land <- terra::mask(r_LAI, land)
-arc_mean <- terra::global(r_LAI_land, mean, na.rm = TRUE)
+
+# Get cell area weights
+cellsize <- terra::cellSize(r_LAI_land, unit = "m")
+
+# Calculate Arctic mean for every year. Weighted by cell size.
+arc_mean <- terra::global(r_LAI_land, "mean", weights = cellsize, na.rm = TRUE) |>
+  as.data.frame()
 arc_mean <- arc_mean |> dplyr::mutate(year = 1982:2021) #add year column for plot
 
+
+#save and reload
+saveRDS(arc_mean, "data/variables/obs_arcmean_weighted.rds")
+arc_mean <- readRDS("data/variables/obs_arcmean_weighted.rds")
+
+
 plot_arc_LAI <- ggplot(data = arc_mean,
-                       aes(x = year, y = mean)) +
+                       aes(x = year, y = weighted_mean)) +
   geom_line() +
   geom_smooth(method = "lm") +        #add linear regression line
   labs(title = "Arctic mean LAI 1982-2021") +

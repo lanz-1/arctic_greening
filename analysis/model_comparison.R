@@ -13,7 +13,7 @@ df_metrics <- tibble(model = character(), slope = numeric(), MAE = numeric(), RM
 
 #create model name vector for iteration
 models <- c("CABLE-POP", "ORCHIDEE", "LPJ-GUESS", "EDv3", "DLEM", "IBIS",
-            "CLASSIC", "LPX-Bern", "JULES", "GDSTEM", "CLM6.0", "JSBACH", "E3SM", "CLM-FATES", "LPJ-GUESS")
+            "CLASSIC", "LPX-Bern", "JULES", "GDSTEM", "CLM6.0", "JSBACH", "E3SM", "CLM-FATES", "VISIT-UT")
 
 
 # Define target regular grid outside the loop
@@ -32,8 +32,8 @@ for (m in models) {
 
 }
 
-#save the results table, then load it
-saveRDS("data/variables/df_metrics.rds")
+#save the results table, then load its
+saveRDS(df_metrics, "data/variables/df_metrics.rds")
 df_metrics <- readRDS("data/variables/df_metrics.rds")
 
 
@@ -51,6 +51,45 @@ boxplot_slope <- ggplot(data = df_metrics) +
 ggplot(data = df_metrics, aes(x = model, y = MAE)) + geom_col() + coord_flip()
 
 
+#load observations
+obs_arcmean <- readRDS("data/variables/obs_arcmean_weighted.rds")
 
+#fit linear model of observations, get slope
+obs_slope <- lm(weighted_mean ~ year, data = obs_arcmean)$coefficients["year"]
+obs_slope <- obs_slope * 40
+
+
+# Define colors to match your existing plot
+model_colors <- c(
+  "CABLE-POP"  = "#FF6B9D",
+  "CLASSIC"    = "#E69500",
+  "CLM-FATES"  = "#B8860B",
+  "CLM6.0"     = "#9DB800",
+  "DLEM"       = "#4CAF50",
+  "E3SM"       = "#2E7D32",
+  "EDv3"       = "#00695C",
+  "GDSTEM"     = "#00BCD4",
+  "IBIS"       = "#29B6F6",
+  "JSBACH"     = "#1565C0",
+  "JULES"      = "#5C6BC0",
+  "LPJ-GUESS"  = "#9C27B0",
+  "LPX-Bern"   = "#CE93D8",
+  "ORCHIDEE"   = "#FF80AB",
+  "VISIT-UT"   = "#FF1493"
+)
+
+ggplot(df_metrics, aes(x = "", y = slope)) +
+  geom_boxplot(outlier.shape = NA,fill = "grey90", width = 0.4) +
+  geom_jitter( aes(color = model), width = 0.05, size = 2) +
+  geom_hline(yintercept = obs_slope, color = "red", linewidth = 0.4) +
+  scale_color_manual(values = model_colors) +
+  labs(
+    title = "Distribution of Arctic LAI Trends by Model",
+    subtitle = "Red Line: Slope of LAI Observations",
+    x = NULL,
+    y = "Slope",
+    color = "Model"
+  ) +
+  theme_bw()
 
 
