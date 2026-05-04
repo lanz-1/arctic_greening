@@ -8,6 +8,9 @@ library(tidyterra)
 models <- c("CABLE-POP", "ORCHIDEE", "LPJ-GUESS", "EDv3", "DLEM", "IBIS",
          "CLASSIC", "LPX-Bern", "JULES", "GDSTEM", "CLM6.0", "JSBACH", "E3SM", "CLM-FATES", "LPJ-GUESS")
 
+
+
+
 #VISIT-UT has a different time format and takes long to calculate. It was done separately.
   
 #read land surface shapefile, later used for masking
@@ -21,6 +24,13 @@ target_grid <- terra::rast(
   resolution = 0.5,
   crs = "EPSG:4326"
 )
+
+
+
+#load lai observations
+arc_mean_obs <- readRDS("data/variables/arcmean_observed.rds")
+arc_mean_obs <-  arc_mean_obs |> dplyr::mutate(model = "OBSERVED")
+
 
 
 # Create results list
@@ -103,17 +113,22 @@ for (dgvm in models) {
   })
 
 
-
-
-
   raster_LAI_f <- terra::rast(raster_list_f)
   names(raster_LAI_f) <- years_f
   
   # Remove ocean surface cells
   raster_LAI_f <- raster_LAI_f |> terra::mask(land)
   
+  
+  # Get cell area weights
+  cellsize <- terra::cellSize(raster_LAI_f, unit = "m")
+  
+  # Area-weighted mean for each layer
+  arc_mean_f <- terra::global(raster_LAI_f, "mean", weights = cellsize, na.rm = TRUE) |>
+    as.data.frame()
+  
   # Calculate Arctic mean LAI over time
-  arc_mean_f <- terra::global(raster_LAI_f, mean, na.rm = TRUE) |> as.data.frame()
+  #arc_mean_f <- terra::global(raster_LAI_f, mean, na.rm = TRUE) |> as.data.frame()
   arc_mean_f <- arc_mean_f |>
     dplyr::mutate(
       year  = as.integer(format(as.POSIXct(years_f), "%Y")),
@@ -122,27 +137,30 @@ for (dgvm in models) {
   
   # Save to results list
   results[[dgvm]] <- arc_mean_f
+
+  
 }
 
 results_df <- dplyr::bind_rows(results)
 
 #load Arctic mean LAI of VISIT-UT model
-arcmean_visitut <- readRDS("data/variables/arcticmean_LAI_visitut.rds")
+arcmean_visitut <- readRDS("data/variables/VISIT-UT_arcmean.rds") |> as_tibble() |>
+  tidyr::unpack(everything())
 
 #add to results dataframe
 results_df <- rbind(results_df, arcmean_visitut)
 
 
-#load lai observations
-arc_mean_obs <- readRDS("data/variables/arcmean_observed.rds")
-arc_mean_obs <-  arc_mean_obs |> dplyr::mutate(model = "OBSERVED")
+#save
+saveRDS(results_df, "data/variables/arcmean_lai_timeseries.rds")
 
-
+#read
+results_df <- readRDS("data/variables/arcmean_lai_timeseries.rds")
 
 
 
 #line plot to compare different models
-ggplot(results_df, aes(x = year, y = mean, color = model)) +
+ggplot(results_df, aes(x = year, y = weighted_mean, color = model)) +
   geom_line(linewidth = 0.8) +
   geom_line(data = arc_mean_obs, aes(x = year, y = mean), color = "black", linewidth = 1.0) +
   labs(
@@ -154,3 +172,43 @@ ggplot(results_df, aes(x = year, y = mean, color = model)) +
   ) +
   theme_bw()
 
+
+
+
+
+#compare annual observed mean to annual modelled mean
+
+
+# Merge modelled and observed by year
+scatter_df <- results_df |>
+  dplyr::left_join(
+    arc_mean_obs |> dplyr::select(year, mean) |> dplyr::rename(obs = mean),
+    by = "year"
+  )
+
+# 1:1 line range
+lims <- range(c(scatter_df$mean, scatter_df$obs), na.rm = TRUE)
+
+# Create a list of plots, one per model
+plot_list <- lapply(unique(scatter_df$model), function(m) {
+  df_m <- scatter_df |> dplyr::filter(model == m)
+  
+  ggplot(df_m, aes(x = obs, y = mean)) +
+    geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey40", linewidth = 0.6) +
+    geom_point(alpha = 0.7, size = 1.5, color = "blue") +
+    coord_equal(xlim = c(0, 2), ylim = c(0, 2)) +
+    labs(
+      title = m,
+      x = "Observed",
+      y = "Modelled"
+    ) +
+    theme_bw() +
+    theme(
+      plot.title = element_text(size = 8, face = "bold"),
+      axis.text  = element_text(size = 7),
+      axis.title = element_text(size = 7)
+    )
+})
+
+cowplot::plot_grid(plotlist = plot_list, ncol = 4)
+plot_list[5]
