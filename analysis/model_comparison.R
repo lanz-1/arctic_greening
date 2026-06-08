@@ -10,7 +10,8 @@ source("./R/compare.R")
 # This script is used to analyze model data. I calculate the deviation from modelled LAI to observed LAI.
 # This is done by iterating over every model and applying the function "compare()".
 # 
-#The output is a boxplot showing the distribution of modelled LAI trends
+#The output is the results dataframe df_metrics, which contains statistical deviation metrics,
+# and a boxplot showing the distribution of modelled LAI trends
 
 
 

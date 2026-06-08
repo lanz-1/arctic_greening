@@ -129,3 +129,11 @@ ggplot(bor_mean, aes(x = year, y = weighted_mean)) +
     y     = "LAI (m²/m²)"
   ) +
   theme_bw()
+
+
+
+
+# calculate the slope of the linear regression line
+boreal_lm <- lm(weighted_mean ~ year, data = bor_mean)
+boreal_obs_slope <- boreal_lm$coefficients[2] * 40  #LAI increase over 40 years
+

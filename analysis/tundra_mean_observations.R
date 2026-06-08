@@ -129,3 +129,11 @@ ggplot(tundra_mean, aes(x = year, y = weighted_mean)) +
     y     = "LAI (m²/m²)"
   ) +
   theme_bw()
+
+
+
+# calculate the slope of the linear regression line
+tundra_lm <- lm(weighted_mean ~ year, data = tundra_mean)
+tundra_obs_slope <- tundra_lm$coefficients[2] * 40  #LAI increase over 40 years
+
+
