@@ -7,11 +7,11 @@ library(tidyterra)
 
 
 # This script is used to look at what seems to be
-# a browning trend in Siberia. Data: LAI observation values.
+# a regional browning trend in Siberia, near Yakutsk. Data: LAI observation values.
 
 # Output:
-# a map showing trends in LAI
-# a line plot showing the spatial mean LAI over time
+# a map of the region showing trends in LAI
+# a line plot showing the regional spatial mean LAI over time
 # maps depicting LAI values in specific years
 
 
@@ -49,19 +49,6 @@ plot_LAI_2003 <- ggplot(LAI_2003) +
   scale_fill_gradient(low = "black", high = "green3", limits = c(0, 5), na.value = "grey90")
 
 
-LAI_2012 <- LAI_siberia |> dplyr::filter(time == 2012)
-plot_LAI_2012 <- ggplot(LAI_2012) + 
-  geom_raster(aes(x = lon, y = lat, fill = LAI)) +
-  labs(title = "Absolute LAI, 2012")
-
-
-
-
-LAI_2013 <- LAI_siberia |> dplyr::filter(time == 2013)
-
-plot_LAI_2013 <- ggplot(LAI_2013) + 
-  geom_raster(aes(x = lon, y = lat, fill = LAI)) +
-  labs(title = "Absolute LAI, 2013")
 
 
 
