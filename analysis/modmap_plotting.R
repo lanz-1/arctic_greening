@@ -32,12 +32,32 @@ for (dgvm in models) {
                           vars = "lai") |> as_tibble()
   
 
-
-  # Filter data from 1982 to 2021
-  mLAI_spatial <- mLAI_spatial |> dplyr::filter(
-    time >= as.POSIXct("1982-01-01", tz = "UTC"),
-    time <= as.POSIXct("2021-12-31", tz = "UTC")
-  )
+  
+  #now filter data from 1982 to 2021
+  
+  
+  #LAI has a different, numeric time-format ("years since 1700-7-15 00:00:00")
+  if (is.numeric(mLAI_spatial$time)) {
+    nc <- ncdf4::nc_open(paste0("data/trendyv14_lai_july_mean/", dgvm, "_S3_lai.nc"))
+    time_units <- nc$dim$time$units
+    ncdf4::nc_close(nc)
+    
+    base_year <- as.numeric(sub(".*since (\\d{4}).*", "\\1", time_units))
+    
+    mLAI_spatial <- mLAI_spatial |>
+      dplyr::mutate(year = base_year + floor(time)) |>
+      dplyr::filter(year %in% 1982:2021)
+  } 
+  
+  
+  #normal time formats
+  else {
+    mLAI_spatial <- mLAI_spatial |> dplyr::filter(
+      time >= as.POSIXct("1982-01-01", tz = "UTC"),
+      time <= as.POSIXct("2021-12-31", tz = "UTC")
+    )
+    
+  }
   
   
   #some models have a 'lat' column, others a 'latitude' column. This causes errors. 

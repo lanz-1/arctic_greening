@@ -15,7 +15,7 @@ library(tidyterra)
 models <- c("CABLE-POP", "ORCHIDEE", "LPJ-GUESS", "EDv3", "DLEM", "IBIS",
             "CLASSIC", "LPX-Bern", "JULES", "GDSTEM", "CLM6.0", "JSBACH", "E3SM", "CLM-FATES")
 
-#models <- c("VISIT-UT")
+models <- c("VISIT-UT")
 
 map_list <- list()
 
@@ -115,13 +115,20 @@ for (dgvm in models) {
   mr_LAI       <- terra::rast(raster_list)
   names(mr_LAI) <- years
   
+  
+  
+  
+  #calculate 40-year mean for every pixel
   mean_LAI_40yrs <- app(mr_LAI, fun = mean, na.rm = TRUE)
   
+  
+  #plot
   mod_map <- ggplot() +
     geom_spatraster(data = mean_LAI_40yrs) +
     scale_fill_gradientn(
       colours = c("white", "#fee08b", "#91cf60", "#1a9850"),
       limits = c(0, 4),
+      oob = scales::squish,
       na.value = NA,
       name = "Mean LAI\n(m²/m²)"
     ) +
@@ -135,6 +142,9 @@ for (dgvm in models) {
       panel.border     = element_rect(colour = "black", fill = NA, linewidth = 0.8)
     )
   
+  
+  
+  ggsave(paste0("fig/maps_abs_LAI_modelled/", dgvm, "_abs_lai.png"), plot = mod_map, width = 8, height = 5, dpi = 300)
   map_list[[dgvm]] <- mod_map
 }
 
