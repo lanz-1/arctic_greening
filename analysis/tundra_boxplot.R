@@ -50,19 +50,31 @@ tundra_slopes <- readRDS("data/variables/tundra_slopes.rds")
 tundra_mean_obs <- readRDS("data/variables/tundra_mean_obs.rds")
 
 #calculate slope
-linmod_obs <- lm(weighted_mean ~ year, data = tundra_mean_obs)
-tundra_bor_obs <- coefficients(linmod_obs)[2] * 40
+linmod_obs_tundra <- lm(weighted_mean ~ year, data = tundra_mean_obs)
+tundra_obs_slope <- coefficients(linmod_obs_tundra)[2] * 40
+
+#get confidence interval
+ci_tundra <- confint(linmod_obs_tundra)["year", ]
+ci_tundra <- ci_tundra * 40
+ci_low_tundra <- ci_tundra[1]
+ci_high_tundra <- ci_tundra[2]
 
 
 #boxplot with jitter points
 tundra_boxplot <- ggplot(tundra_slopes, aes(x = "", y = slope)) +
   geom_boxplot(outlier.shape = NA,fill = "grey90", width = 0.4) +
   geom_jitter(aes(color = model), width = 0.05, size = 2) +
-  geom_hline(yintercept = slope_bor_obs, color = "red", linewidth = 0.4) +
+  geom_hline(yintercept = tundra_obs_slope, color = "red", linewidth = 0.4) +
+  annotate(
+    "rect",
+    xmin = -Inf, xmax = Inf,
+    ymin = ci_low_tundra, ymax = ci_high_tundra,
+    fill = "red", alpha = 0.1
+  ) +
   scale_color_manual(values = model_colors) +
   labs(
     title = "Distribution of Tundra LAI Trends by Model",
-    subtitle = "Red Line: Slope of Tundra LAI Observations",
+    subtitle = "Red Line: Slope of Tundra LAI Observations, 95% Confidence Interval",
     x = NULL,
     y = "Slope",
     color = "Model"

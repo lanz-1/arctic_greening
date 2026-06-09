@@ -68,9 +68,18 @@ ggplot(data = df_metrics, aes(x = model, y = MAE)) + geom_col() +
 #load observations
 obs_arcmean <- readRDS("data/variables/obs_arcmean_weighted.rds")
 
-#fit linear model of observations, get slope
-obs_slope <- lm(weighted_mean ~ year, data = obs_arcmean)$coefficients["year"]
+#fit linear model of observations
+lm_obs <- lm(weighted_mean ~ year, data = obs_arcmean)
+
+#get slope
+obs_slope <- lm_obs$coefficients["year"]
 obs_slope <- obs_slope * 40
+
+#get the confidence interval of the linear model
+ci <- confint(lm_obs)["year", ]
+ci <- ci * 40
+ci_low <- ci[1]
+ci_high <- ci[2]
 
 
 # Define colors (same as lineplot)
@@ -98,10 +107,16 @@ boxplot_jitter <- ggplot(df_metrics, aes(x = "", y = slope)) +
   geom_boxplot(outlier.shape = NA,fill = "grey90", width = 0.4) +
   geom_jitter( aes(color = model), width = 0.05, size = 2) +
   geom_hline(yintercept = obs_slope, color = "red", linewidth = 0.4) +
+  annotate(
+    "rect",
+    xmin = -Inf, xmax = Inf,
+    ymin = ci_low, ymax = ci_high,
+    fill = "red", alpha = 0.1
+  ) +
   scale_color_manual(values = model_colors) +
   labs(
     title = "Distribution of Arctic LAI Trends by Model",
-    subtitle = "Red Line: Slope of LAI Observations",
+    subtitle = "Red Line: Slope of LAI Observations, 95% Confidence Interval",
     x = NULL,
     y = "Slope",
     color = "Model"
