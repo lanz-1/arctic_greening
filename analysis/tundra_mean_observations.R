@@ -120,7 +120,7 @@ tundra_mean <- readRDS("data/variables/tundra_mean_obs.rds")
 
 
 #plot tundra mean over time
-ggplot(tundra_mean, aes(x = year, y = weighted_mean)) +
+plot_tundra_mean <- ggplot(tundra_mean, aes(x = year, y = weighted_mean)) +
   geom_line() +
   geom_smooth(method = "lm") +
   labs(
@@ -128,7 +128,7 @@ ggplot(tundra_mean, aes(x = year, y = weighted_mean)) +
     x     = "Year",
     y     = "LAI (m²/m²)"
   ) +
-  theme_bw()
+  theme_minimal()
 
 
 

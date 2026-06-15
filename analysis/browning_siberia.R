@@ -40,17 +40,6 @@ LAI_siberia <- LAI_spatial |>
 
 
 
-# experimental: select 2003 values
-
-LAI_2003 <- LAI_siberia |> dplyr::filter(time == 2003)
-
-plot_LAI_2003 <- ggplot(LAI_2003) + 
-  geom_raster(aes(x = lon, y = lat, fill = LAI)) +
-  scale_fill_gradient(low = "black", high = "green3", limits = c(0, 5), na.value = "grey90")
-
-
-
-
 
 #plot maps for every year separately
 for (yr in 1982:2021) {
@@ -101,7 +90,7 @@ siberia_trendmap <- ggplot() +
     midpoint = 0,
     na.value = NA,
     name = "LAI trend\n(per year)") +
-  labs(title = "Linear trend in LAI (1982–2021)") +
+  labs(title = "Yakutsk Region: Linear trend in LAI (1982–2021)") +
   theme_bw()
   
 siberia_trendmap
@@ -112,7 +101,7 @@ siberia_trendmap
 
 
 # Get cell area weights
-cellsize <- terra::cellSize(r_siberia_trend, unit = "m")
+cellsize <- terra::cellSize(r_siberia, unit = "m")
 
 # Calculate Arctic mean for every year. Weighted by cell size.
 siberia_mean <- terra::global(r_siberia, "mean", weights = cellsize, na.rm = TRUE) |>
@@ -122,9 +111,17 @@ siberia_mean <- siberia_mean |> dplyr::mutate(year = 1982:2021) #add year column
 
 plot_siberia_mean <- ggplot(data = siberia_mean, aes(x = year, y = weighted_mean)) + 
               geom_line() +
-              labs(title = "Central Siberia Mean LAI, 1982-2021") +
-              #geom_smooth(method = "lm") +
-              theme_bw()
+              labs(title = "Yakutsk Region: Mean LAI, 1982-2021",
+                   x = "Year",
+                   y = "LAI") +
+              geom_smooth(method = "lm") +
+              theme_minimal()
                                                         
 plot_siberia_mean
+
+
+# get the slope
+linmod_siberia <- lm(weighted_mean ~ year, data = siberia_mean)
+slope_siberia <- coefficients(linmod_siberia)[2]*40
+
 

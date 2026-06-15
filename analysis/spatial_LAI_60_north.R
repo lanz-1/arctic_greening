@@ -202,7 +202,9 @@ plot_arc_LAI <- ggplot(data = arc_mean,
                        aes(x = year, y = weighted_mean)) +
   geom_line() +
   geom_smooth(method = "lm") +        #add linear regression line
-  labs(title = "Arctic mean LAI 1982-2021") +
-  theme_bw()
+  labs(title = "Arctic mean LAI 1982-2021",
+       x = "Year",
+       y = "LAI") +
+  theme_minimal()
 plot_arc_LAI
 

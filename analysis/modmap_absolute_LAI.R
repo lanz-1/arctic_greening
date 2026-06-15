@@ -15,7 +15,7 @@ library(tidyterra)
 models <- c("CABLE-POP", "ORCHIDEE", "LPJ-GUESS", "EDv3", "DLEM", "IBIS",
             "CLASSIC", "LPX-Bern", "JULES", "GDSTEM", "CLM6.0", "JSBACH", "E3SM", "CLM-FATES")
 
-models <- c("VISIT-UT")
+#models <- c("VISIT-UT")
 
 map_list <- list()
 

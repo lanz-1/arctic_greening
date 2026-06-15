@@ -103,8 +103,7 @@ ggplot() +
   theme_minimal() +
   theme(legend.position = "bottom")
 
-# ── Area-weighted annual mean ─────────────────────────────────────────────────
-# cellSize only needs to be computed once (geometry is identical for all layers)
+# annual mean weighted by cell size
 cellsize <- terra::cellSize(bor_plot, unit = "m")
 
 bor_mean <- terra::global(r_LAI, "mean", weights = cellsize, na.rm = TRUE) |>
@@ -119,19 +118,19 @@ bor_mean <- readRDS("data/variables/boreal_mean_obs.rds")
 
 
 #plot boreal mean over time
-ggplot(bor_mean, aes(x = year, y = weighted_mean)) +
+plot_boreal_mean <- ggplot(bor_mean, aes(x = year, y = weighted_mean)) +
   geom_line() +
   geom_smooth(method = "lm") +
   scale_y_continuous(breaks = c(2.7, 2.8, 2.9)) +
   labs(
     title = "Boreal mean LAI, 1982-2021",
     x     = "Year",
-    y     = "LAI (m²/m²)"
+    y     = "LAI"
   ) +
-  theme_bw()
+  theme_minimal()
 
 
-
+plot_boreal_mean
 
 # calculate the slope of the linear regression line
 boreal_lm <- lm(weighted_mean ~ year, data = bor_mean)
