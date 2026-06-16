@@ -135,7 +135,7 @@ land <- terra::vect("data/spatial/land_surface/ne_10m_land.shp")
 LAI_trend_land <- terra::mask(r_LAI_trend, land)
 
 
-#create empty data frame to be filled by the loop
+#create an empty data frame to be filled by the loop
 df <-  data.frame(lat = numeric(), mean = numeric())
 
 #start looping over every latitude, calculating mean
@@ -176,6 +176,8 @@ LAI_trendmap <- ggplot() +
   theme(
     panel.grid.major = element_line(colour = "gray")) +
   theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 0.8))
+
+
 
 
 
