@@ -12,11 +12,11 @@ library(tidyterra)
 #a line plot showing the spatial mean LAI over time
 
 
-
+#no prior running of any other script is required
 
 
 #read data
-#from 31.12.1981 to 31.12.2021
+# LAI observations from 31.12.1981 to 31.12.2021
 LAI_spatial <- metR::ReadNetCDF("data/spatial/1982_2021_cat_transxy_wgrid_invertlat.nc") |>
   as_tibble()
 
@@ -30,6 +30,7 @@ LAI_spatial <- LAI_spatial |>
   mutate(time = rep(time_axis, each = n_cells))
 
 #----
+#---- This is experimental. Playing around with terra. You can skip it.
 
 #spatial data in northern latitudes for 2011
 LAI_2011 <- LAI_spatial |> dplyr::filter((as.Date(time) == as.Date("2011-12-31")) & (lat >= 55))
@@ -67,11 +68,18 @@ m <- r_LAI_1985 > 1.5
 ggplot() + geom_spatraster(data = m) + scale_fill_viridis_d(na.value = NA) +
   labs(title = "LAI above 1.5 (true/false), Latitudes >= 55, 1985-12-31")
 
+#---- end of the experimental part
 #----
 
 # Filter northern latitudes (60 degrees)
 LAI_north_60 <- LAI_spatial |>
   dplyr::filter(lat >= 60)
+
+
+#save the Arctic Observations dataset for later use
+saveRDS(LAI_north_60, "data/variables/LAI_north_60.rds")
+
+
 
 #this is AI-generated. Creates a multi-layered spatraster object. One layer per year.
 
@@ -89,10 +97,15 @@ r_LAI <- terra::rast(raster_list)
 names(r_LAI) <- years
 
 
+#save the spatraster with absolute LAI values
+terra::writeRaster(r_LAI, "data/variables/r_LAI.tif")
+
 
 #end of AI section
 
 #----
+#---- See if the AI code is correct. Again, this is experimental, you can skip it if you want
+
 #plot year 2011, directly extracted from multi-layered r_LAI. 
 plot_r_LAI_2011 <- ggplot() + geom_spatraster(data = r_LAI[["2011"]]) + scale_fill_viridis_c(na.value = NA) +
   labs(title = "LAI: Latitudes >= 55, 2011-12-31")
@@ -130,9 +143,15 @@ names(r_LAI_trend) <- "LAI_trend"
 
 #create a land surface mask
 
-#load land surface shapefile and create land mask
+#load land surface shapefile and mask the oceans away
 land <- terra::vect("data/spatial/land_surface/ne_10m_land.shp")
 LAI_trend_land <- terra::mask(r_LAI_trend, land)
+
+
+#save the spatraster for the trendline map, then load it again
+terra::writeRaster(LAI_trend_land, "data/variables/LAI_trend_land.tif")
+LAI_trend_land <- terra::rast("data/variables/LAI_trend_land.tif")
+
 
 
 #create an empty data frame to be filled by the loop
@@ -153,15 +172,12 @@ for(i in seq(55,80)) {
 df
 
 
-#plot spatial mean by latitude. Look for latitude effect
+#plot spatial mean by latitude. Look for latitude effect (explorative)
 ggplot(data = df, aes(x = lat, y = mean)) + geom_point()
 
 
 
-#save spatraster for trendline map, then load it again
-terra::writeRaster(LAI_trend_land, "data/variables/LAI_trend_land.tif")
-LAI_trend_land <- terra::rast("data/variables/LAI_trend_land.tif")
-
+# Here comes the product
 # Plot trendline map
 LAI_trendmap <- ggplot() +
   geom_spatraster(data = LAI_trend_land) +
@@ -200,6 +216,8 @@ saveRDS(arc_mean, "data/variables/obs_arcmean_weighted.rds")
 arc_mean <- readRDS("data/variables/obs_arcmean_weighted.rds")
 
 
+
+# Plot the second figure (Arctic Mean LAI 1982-2021)
 plot_arc_LAI <- ggplot(data = arc_mean,
                        aes(x = year, y = weighted_mean)) +
   geom_line() +

@@ -8,7 +8,9 @@ library(tidyterra)
 
 # This script is used to plot annual boreal means of model data.
 
-
+# make sure that you run the following scripts first:
+# 'model_comparison.R'
+# 'boreal_mean_observations.R'
 
 
 
@@ -17,9 +19,20 @@ models <- c("CLM6.0", "CABLE-POP", "ORCHIDEE", "LPJ-GUESS", "EDv3", "DLEM", "IBI
             "CLASSIC", "LPX-Bern", "GDSTEM", "CLM6.0", "JSBACH", "E3SM", "CLM-FATES", "JULES")
 
 
+# VISIT-UT has a different time format and takes long to calculate. It was done separately.
+# Use this code and append it to results later.
+# models <- c("VISIT-UT")
 
 
-#VISIT-UT has a different time format and takes long to calculate. It was done separately.
+# or try everything at once, with VISIT-UT included (could take long)
+
+# models <- c("VISIT-UT", "CLM6.0", "ORCHIDEE", "LPJ-GUESS", "EDv3", "DLEM", "IBIS",
+# "CLASSIC", "LPX-Bern", "GDSTEM", "CABLE-POP", "JSBACH", "E3SM", "CLM-FATES", "JULES")
+
+
+
+
+
 
 #read land surface shapefile, later used for masking
 land <- terra::vect("data/spatial/land_surface/ne_10m_land.shp")
@@ -32,12 +45,6 @@ target_grid <- terra::rast(
   resolution = 0.5,
   crs = "EPSG:4326"
 )
-
-
-
-#load lai observations
-arc_mean_obs <- readRDS("data/variables/obs_arcmean_weighted.rds")
-arc_mean_obs <-  arc_mean_obs |> dplyr::mutate(model = "OBSERVED")
 
 
 
@@ -191,24 +198,8 @@ saveRDS(results_boreal_final, "data/variables/results_boreal_final.rds")
 results_boreal_final <- readRDS("data/variables/results_boreal_final.rds")
 
 
-#define color scheme
-model_colors <- c(
-  "CABLE-POP"  = "#FF6B9D",
-  "CLASSIC"    = "#E69500",
-  "CLM-FATES"  = "#B8860B",
-  "CLM6.0"     = "#9DB800",
-  "DLEM"       = "#4CAF50",
-  "E3SM"       = "#2E7D32",
-  "EDv3"       = "#00695C",
-  "GDSTEM"     = "#00BCD4",
-  "IBIS"       = "#29B6F6",
-  "JSBACH"     = "#1565C0",
-  "JULES"      = "#5C6BC0",
-  "LPJ-GUESS"  = "#9C27B0",
-  "LPX-Bern"   = "#CE93D8",
-  "ORCHIDEE"   = "#FF80AB",
-  "VISIT-UT"   = "#FF1493"
-)
+# load the color scheme, same as always
+model_colors <- readRDS("data/variables/model_colors.rds")
 
 
 
@@ -252,6 +243,3 @@ ggplot() +
   ) +
   theme_minimal() +
   theme(legend.position = "bottom")
-
-
-#----

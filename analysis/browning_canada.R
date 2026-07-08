@@ -15,29 +15,19 @@ library(tidyterra)
 # maps depicting LAI values in specific years
 
 
+# before running this script, run 'spatial_LAI_60_north.R'
 
 
 
 #read data
-#from 31.12.1981 to 31.12.2021
-LAI_spatial <- metR::ReadNetCDF("data/spatial/1982_2021_cat_transxy_wgrid_invertlat.nc") |>
-  as_tibble()
+#Arctic LAI observations from 31.12.1981 to 31.12.2021 
+LAI_north_60 <- readRDS("data/variables/LAI_north_60.rds")
 
-
-
-#create time axis to add to data
-time_axis <- 1982:2021
-
-n_cells <- nrow(LAI_spatial) / 40
-
-LAI_spatial <- LAI_spatial |>
-  mutate(time = rep(time_axis, each = n_cells))
 
 
 # Filter data spatially by coordinates. From 60°N to 65°N. From 120°W to 100°W.
-LAI_canada <- LAI_spatial |>
+LAI_canada <- LAI_north_60 |>
   dplyr::filter(lat >= 60 & lat < 67 & lon >= -140 & lon < -100)
-
 
 
 
@@ -57,7 +47,6 @@ for (yr in 1982:2021) {
 
 
 # Build one SpatRaster per year, then stack
-
 raster_list_ca <- lapply(time_axis, function(yr) {
   LAI_canada |>
     dplyr::filter(time == yr) |>
@@ -70,7 +59,6 @@ names(r_canada) <- time_axis
 
 
 
-
 # Fit pixel-wise linear trend using terra::app() with lm
 r_canada_trend <- terra::app(r_canada, fun = function(x) {
   if (all(is.na(x))) return(NA)
@@ -79,6 +67,7 @@ r_canada_trend <- terra::app(r_canada, fun = function(x) {
 })
 
 names(r_canada_trend) <- "LAI_trend"
+
 
 
 # Plot trendline map
@@ -97,10 +86,11 @@ canada_trendmap
 
 
 
+
 # calculate spatial mean LAI per year
 
 
-# Get cell area weights
+# Get cell area weights first
 cellsize <- terra::cellSize(r_canada, unit = "m")
 
 # Calculate Arctic mean for every year. Weighted by cell size.

@@ -31,24 +31,8 @@ all_slopes <- rbind(arctic_slopes, tundra_slopes, boreal_slopes)
 
 
 
-# Define colors (same as lineplot)
-model_colors <- c(
-  "CABLE-POP"  = "#FF6B9D",
-  "CLASSIC"    = "#E69500",
-  "CLM-FATES"  = "#B8860B",
-  "CLM6.0"     = "#9DB800",
-  "DLEM"       = "#4CAF50",
-  "E3SM"       = "#2E7D32",
-  "EDv3"       = "#00695C",
-  "GDSTEM"     = "#00BCD4",
-  "IBIS"       = "#29B6F6",
-  "JSBACH"     = "#1565C0",
-  "JULES"      = "#5C6BC0",
-  "LPJ-GUESS"  = "#9C27B0",
-  "LPX-Bern"   = "#CE93D8",
-  "ORCHIDEE"   = "#FF80AB",
-  "VISIT-UT"   = "#FF1493"
-)
+#load color scheme from first boxplot
+model_colors <- readRDS("data/variables/model_colors.rds")
 
 
 

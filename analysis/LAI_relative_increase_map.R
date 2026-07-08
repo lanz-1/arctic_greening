@@ -1,5 +1,4 @@
 library(ncdf4)
-library(metR)
 library(ggplot2)
 library(dplyr)
 library(tidyterra)
@@ -12,8 +11,11 @@ library(tidyterra)
 #  LAI increase over 40 years / mean LAI from 1982 to 1991
 
 
+
 #load dataset with LAI increases over 40 years. This is calculated in the file
 # 'spatial_LAI_60_north.R'
+
+
 
 # increase per year
 LAI_trend_land <- terra::rast("data/variables/LAI_trend_land.tif")
@@ -21,26 +23,10 @@ LAI_trend_land <- terra::rast("data/variables/LAI_trend_land.tif")
 # total increase over 40 years
 LAI_trend_land <- LAI_trend_land *40
 
+
+
 #load LAI data
-
-#from 31.12.1981 to 31.12.2021
-LAI_spatial <- metR::ReadNetCDF("data/spatial/1982_2021_cat_transxy_wgrid_invertlat.nc") |>
-  as_tibble()
-
-
-#create time axis to add to data
-time_axis <- 1982:2021
-
-n_cells <- nrow(LAI_spatial) / 40
-
-LAI_spatial <- LAI_spatial |>
-  mutate(time = rep(time_axis, each = n_cells))
-
-
-# Filter northern latitudes (60 degrees)
-LAI_north_60 <- LAI_spatial |>
-  dplyr::filter(lat >= 60)
-
+LAI_north_60 <- readRDS("data/variables/LAI_north_60.rds")
 
 
 # Filter years 1982 to 1992
@@ -80,11 +66,6 @@ relative_change <- LAI_trend_land / obs_mean_91
 
 # change in percents
 relative_change <- relative_change * 100
-
-
-
-
-
 
 
 

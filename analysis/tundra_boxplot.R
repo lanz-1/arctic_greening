@@ -7,8 +7,12 @@ library(terra)
 
 
 # This file is used to create a boxplot showing the distribution of modelled LAI trends
-# in the BOREAL biome
+# in the TUNDRA biome
 
+#run the following files first:
+#'model_comparison.R'
+#'tundra_biome.R'
+#'tundra_mean_observations.R
 
 
 #load tundra modelled mean LAI. It was calculated in the file 'tundra_biome.R'.
@@ -59,6 +63,9 @@ ci_tundra <- ci_tundra * 40
 ci_low_tundra <- ci_tundra[1]
 ci_high_tundra <- ci_tundra[2]
 
+
+#load color scheme
+model_colors <- readRDS("data/variables/model_colors.rds")
 
 #boxplot with jitter points
 tundra_boxplot <- ggplot(tundra_slopes, aes(x = "", y = slope)) +

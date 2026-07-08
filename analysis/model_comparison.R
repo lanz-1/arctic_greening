@@ -102,6 +102,10 @@ model_colors <- c(
 )
 
 
+#save color scheme to use again later in other scripts
+saveRDS(model_colors, "data/variables/model_colors.rds")
+
+
 #boxplot with jitter points
 boxplot_jitter <- ggplot(df_metrics, aes(x = "", y = slope)) +
   geom_boxplot(outlier.shape = NA,fill = "grey90", width = 0.4) +

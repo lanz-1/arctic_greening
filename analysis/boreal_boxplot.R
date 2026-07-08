@@ -9,9 +9,13 @@ library(terra)
 # This file is used to create a boxplot showing the distribution of modelled LAI trends
 # in the BOREAL biome
 
+#run the following files first:
+#'model_comparison.R'
+#'boreal_biome.R'
+#'boreal_mean_observations.R'
 
 
-#load boreal modelled mean LAI. It was calculated in the file 'boreal_biome.R'.
+#load boreal modelled mean LAI. It is calculated in the file 'boreal_biome.R'.
 bor_means <- readRDS("data/variables/results_boreal_final.rds")
 
 
@@ -60,6 +64,8 @@ ci_bor <- ci_bor * 40
 ci_low_bor <- ci_bor[1]
 ci_high_bor <- ci_bor[2]
 
+#load color scheme
+model_colors <- readRDS("data/variables/model_colors.rds")
 
 #boxplot with jitter points
 boreal_boxplot <- ggplot(boreal_slopes, aes(x = "", y = slope)) +

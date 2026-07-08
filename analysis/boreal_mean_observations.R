@@ -25,6 +25,9 @@ LAI_spatial <- LAI_spatial |>
   mutate(time = rep(time_axis, each = n_cells))
 
 
+
+# This is AI code to regrid the biome mask to the observations grid
+
 # ── Build LAI reference grid from first time slice (global extent) ─────────
 LAI_grid <- LAI_spatial |>
   dplyr::filter(time == min(time)) |>
@@ -102,6 +105,8 @@ ggplot() +
   ) +
   theme_minimal() +
   theme(legend.position = "bottom")
+
+
 
 # annual mean weighted by cell size
 cellsize <- terra::cellSize(bor_plot, unit = "m")

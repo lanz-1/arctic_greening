@@ -6,10 +6,7 @@ library(tidyterra)
 
 
 
-
-# This script is to plot the different modelled LAI means in the tundra biome.
-
-
+# This script is used to plot the different modelled LAI means in the tundra biome.
 
 
 # Create model name vector for iteration
@@ -18,7 +15,19 @@ models <- c("CLM6.0", "ORCHIDEE", "LPJ-GUESS", "EDv3", "DLEM", "IBIS",
 
 
 
-#VISIT-UT has a different time format and takes long to calculate. It was done separately.
+# VISIT-UT has a different time format and takes long to calculate. It was done separately.
+# Use this code and append it to results later.
+# models <- c("VISIT-UT")
+
+
+# or try everything at once, with VISIT-UT included (could take long)
+
+# models <- c("VISIT-UT", "CLM6.0", "ORCHIDEE", "LPJ-GUESS", "EDv3", "DLEM", "IBIS",
+# "CLASSIC", "LPX-Bern", "GDSTEM", "CABLE-POP", "JSBACH", "E3SM", "CLM-FATES", "JULES")
+
+
+
+
 
 #read land surface shapefile, later used for masking
 land <- terra::vect("data/spatial/land_surface/ne_10m_land.shp")
@@ -31,12 +40,6 @@ target_grid <- terra::rast(
   resolution = 0.5,
   crs = "EPSG:4326"
 )
-
-
-
-#load lai observations
-arc_mean_obs <- readRDS("data/variables/obs_arcmean_weighted.rds")
-arc_mean_obs <-  arc_mean_obs |> dplyr::mutate(model = "OBSERVED")
 
 
 
@@ -199,24 +202,7 @@ tundra_mean_obs <- readRDS("data/variables/tundra_mean_obs.rds")
 
 
 #define color scheme
-model_colors <- c(
-  "CABLE-POP"  = "#FF6B9D",
-  "CLASSIC"    = "#E69500",
-  "CLM-FATES"  = "#B8860B",
-  "CLM6.0"     = "#9DB800",
-  "DLEM"       = "#4CAF50",
-  "E3SM"       = "#2E7D32",
-  "EDv3"       = "#00695C",
-  "GDSTEM"     = "#00BCD4",
-  "IBIS"       = "#29B6F6",
-  "JSBACH"     = "#1565C0",
-  "JULES"      = "#5C6BC0",
-  "LPJ-GUESS"  = "#9C27B0",
-  "LPX-Bern"   = "#CE93D8",
-  "ORCHIDEE"   = "#FF80AB",
-  "VISIT-UT"   = "#FF1493"
-)
-
+model_colors <- readRDS("data/variables/model_colors.rds")
 
 
 #line plot to compare different models
@@ -243,8 +229,8 @@ ggplot(results_tundra_final, aes(x = year, y = weighted_mean, color = model)) +
 
 
 
-  
-#Example: plot tundra LAI in 2011
+#----
+#Example: plot tundra LAI in 2011. See if the masking worked.
 
   # Extract one year as a single SpatRaster layer
   lai_2011 <- raster_LAI_f[[which(format(as.POSIXct(years_f), "%Y") == "2011")]]
