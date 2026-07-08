@@ -25,11 +25,24 @@ R scripts used for plotting are stored in the /analysis folder. R functions used
 ### Data
 
 For LAI observation data I used the AVHRR product from (Jeong et al. 2024). You can download it here: https://www.environment.snu.ac.kr/data/longterm-lai
+The file is not identical to the one I used, because mine was preprocessed by GECO to include only Mean July LAI values. It is too large for
+Github, so if you wish to use the same preprocessed dataset that I used, please contact me or the GECO organization.
+
 
 More information on the AVHRR product used is available here: https://www.sciencedirect.com/science/article/pii/S0034425724003006
 
 
 Model data was downloaded from Trendyv14 (https://globalcarbonbudget.org/datahub/).
+
+
+### Instructions
+
+To reproduce the analysis, you have to run the scripts in the /analysis folder in the correct order.
+Start with the scripts in /analysis/observations_analysis and execute them in the order of their 
+numbering, starting from 01.
+
+You can then run the scripts in the /analysis/model_analysis folder, again in order from the smallest
+to the largest number.
 
 ### Literature
 
