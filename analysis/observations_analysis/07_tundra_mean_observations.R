@@ -10,20 +10,13 @@ library(terra)
 # This script is used to calculate annual OBSERVED LAI means in the TUNDRA biome.
 
 
+#load LAI data
+LAI_spatial <- readRDS("data/variables/LAI_north_60.rds")
 
 
-#load data
-LAI_spatial <- metR::ReadNetCDF("data/spatial/1982_2021_cat_transxy_wgrid_invertlat.nc") |>
-  as_tibble() |>
-  dplyr::rename(latitude = lat, longitude = lon)
 
 
-#add time axis
-time_axis <- 1982:2021
-n_cells   <- nrow(LAI_spatial) / 40
-LAI_spatial <- LAI_spatial |>
-  mutate(time = rep(time_axis, each = n_cells))
-
+# This is AI code to regrid the biome mask to the observations grid
 
 # ── Build LAI reference grid from first time slice (global extent) ─────────
 LAI_grid <- LAI_spatial |>
@@ -104,7 +97,9 @@ ggplot() +
   theme_minimal() +
   theme(legend.position = "bottom")
 
-# ── Area-weighted annual mean ─────────────────────────────────────────────────
+
+
+# calculate the annual mean, weighted by cell size
 # cellSize only needs to be computed once (geometry is identical for all layers)
 cellsize <- terra::cellSize(tundra_2011, unit = "m")
 

@@ -12,18 +12,9 @@ library(terra)
 
 
 
-#load data
-LAI_spatial <- metR::ReadNetCDF("data/spatial/1982_2021_cat_transxy_wgrid_invertlat.nc") |>
-  as_tibble() |>
-  dplyr::rename(latitude = lat, longitude = lon)
 
-
-#add time axis
-time_axis <- 1982:2021
-n_cells   <- nrow(LAI_spatial) / 40
-LAI_spatial <- LAI_spatial |>
-  mutate(time = rep(time_axis, each = n_cells))
-
+#load LAI data
+LAI_spatial <- readRDS("data/variables/LAI_north_60.rds")
 
 
 # This is AI code to regrid the biome mask to the observations grid
