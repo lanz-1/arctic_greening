@@ -43,20 +43,11 @@ for (m in models) {
 
 }
 
-#save the results table, then load its
+#save the results table, then reload it
 saveRDS(df_metrics, "data/variables/df_metrics.rds")
 df_metrics <- readRDS("data/variables/df_metrics.rds")
 
 
-#boxplot showing distribution of slope means
-boxplot_slope <- ggplot(data = df_metrics) + 
-  geom_boxplot(aes(x = "", y = slope), width = 0.3) +
-  geom_jitter(aes(x = "", y = slope), width = 0, height = 0, alpha = 0.3) +
-  labs(title = "Distribution of modelled LAI trend slope (40 years)") +
-  theme_bw() +
-  theme(axis.title.x = element_blank(),
-        axis.text.x  = element_blank(),
-        axis.ticks.x = element_blank())
 
 
 #compare MAE
